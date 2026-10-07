@@ -1,0 +1,45 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // "ADMIN", "DOCTOR", "PATIENT", "RECEPTION"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  records       Record[]
+  notifications Notification[]
+}
+
+model Record {
+  id             String   @id @default(cuid())
+  patientId      String
+  patient        User     @relation(fields: [patientId], references: [id])
+  inputType      String   // "TEXT", "FORM", "FILE"
+  description    String?
+  fileUrl        String?
+  aiAnalysis     String?
+  doctorFeedback String?
+  status         String   @default("PENDING") // "PENDING", "ANALYZED", "COMPLETED"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  isRead    Boolean  @default(false)
+  url       String?
+  createdAt DateTime @default(now())
+}
