@@ -1,5 +1,5 @@
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -24,20 +24,26 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-700 text-white px-6 py-3 shadow-md">
-      <div className="max-w-5xl mx-auto flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold tracking-wide">
-          🏥 Klinika Sistemi
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3 shadow-sm">
+      <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <Link href="/" className="flex items-center gap-2 text-xl font-extrabold text-blue-700 tracking-tight hover:opacity-80 transition">
+          <span className="bg-blue-600 text-white rounded-lg p-1.5 shadow-sm">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+          </span>
+          Klinika Sistemi
         </Link>
-        <div className="flex gap-3 items-center text-sm">
+        <div className="flex gap-4 items-center text-sm font-medium">
           {session ? (
             <>
-              <span className="bg-blue-800 px-3 py-1 rounded-full">
-                {user?.name} · {roleLabel[user?.role ?? ""] ?? user?.role}
-              </span>
+              <div className="hidden sm:flex items-center bg-slate-100 rounded-full py-1.5 px-4 shadow-inner border border-slate-200">
+                <span className="text-slate-700 font-semibold mr-2">{user?.name}</span>
+                <span className="bg-white text-blue-600 text-xs px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
+                  {roleLabel[user?.role ?? ""] ?? user?.role}
+                </span>
+              </div>
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
-                className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg transition"
+                className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl transition shadow-sm font-semibold"
               >
                 Çıxış
               </button>
@@ -45,9 +51,9 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => router.push("/login")}
-              className="bg-green-500 hover:bg-green-600 px-4 py-1 rounded-lg transition font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl transition shadow-md font-semibold"
             >
-              Giriş
+              Giriş Et
             </button>
           )}
         </div>

@@ -1,5 +1,7 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { db } from "@/lib/firebase-admin";
+import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -12,23 +14,37 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // Test istifadəçiləri (real DB hazır olanda prisma ilə əvəzlənəcək)
-        const mockUsers = [
-          { id: "1", name: "Admin",        email: "admin@test.com",     password: "123", role: "ADMIN" },
-          { id: "2", name: "Dr. House",    email: "doctor@test.com",    password: "123", role: "DOCTOR" },
-          { id: "3", name: "John Doe",     email: "patient@test.com",   password: "123", role: "PATIENT" },
-          { id: "4", name: "Receptionist", email: "reception@test.com", password: "123", role: "RECEPTION" },
-        ];
+        // Firebase-dən yoxlayırıq
+        const usersRef = db.collection("users");
+        const snapshot = await usersRef.where("email", "==", credentials.email).get();
 
-        const user = mockUsers.find(
-          (u) => u.email === credentials.email && u.password === credentials.password
-        );
-
-        if (user) {
-          return { id: user.id, name: user.name, email: user.email, role: user.role };
+        if (snapshot.empty) {
+          // Geriye uyğunluq (mock userlər db-də yoxdursa test üçün)
+          const mockUsers = [
+            { id: "1", name: "Admin",        email: "admin@test.com",     password: "123", role: "ADMIN" },
+            { id: "2", name: "Dr. House",    email: "doctor@test.com",    password: "123", role: "DOCTOR" },
+            { id: "3", name: "John Doe",     email: "patient@test.com",   password: "123", role: "PATIENT" },
+            { id: "4", name: "Receptionist", email: "reception@test.com", password: "123", role: "RECEPTION" },
+          ];
+          const mock = mockUsers.find(u => u.email === credentials.email && u.password === credentials.password);
+          if (mock) return mock;
+          
+          return null;
         }
 
-        return null;
+        const userDoc = snapshot.docs[0];
+        const user = userDoc.data();
+
+        // Parolu yoxlayırıq
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
+
+        return {
+          id: userDoc.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       }
     })
   ],
@@ -38,15 +54,15 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as { id: string; name: string; email: string; role: string }).role;
+        token.role = (user as any).role;
         token.id   = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session?.user) {
-        (session.user as { role?: string; id?: string }).role = token.role as string;
-        (session.user as { role?: string; id?: string }).id   = token.id  as string;
+        (session.user as any).role = token.role;
+        (session.user as any).id   = token.id;
       }
       return session;
     }
