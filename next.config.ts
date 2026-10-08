@@ -1,16 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config, { dev }) => {
-    if (dev) {
-      config.watchOptions = {
-        ignored: /node_modules|\.git|\.next/,
-        aggregateTimeout: 300,
-        poll: false,
-      };
-    }
-    return config;
-  },
+  // Webpack watchOptions yalnız 'npm run dev' üçün lazım idi, 
+  // lakin Build (Vercel) zamanı Turbopack ilə konflikt yaratdığı üçün onu təmizlədik.
+  // Çünki Build zamanı faylları "izləməyə" ehtiyac yoxdur.
 };
 
 export default nextConfig;
