@@ -18,7 +18,14 @@ export default function PatientPage() {
       let symptomsText = "";
       if (activeTab === "TEXT") symptomsText = text;
       if (activeTab === "FORM") symptomsText = `Yaş: ${form.age}, Hərarət: ${form.temp}, Ağrı bölgəsi: ${form.pain}`;
-      if (activeTab === "FILE") symptomsText = `Fayl yüklənib: ${file?.name} (Məzmun oxunmayıb)`;
+      if (activeTab === "FILE" && file) {
+        if (file.type === "text/plain" || file.name.endsWith('.txt')) {
+          const fileContent = await file.text();
+          symptomsText = `Fayl yüklənib: ${file.name}\n\nMəzmun:\n${fileContent}`;
+        } else {
+          symptomsText = `Fayl yüklənib: ${file.name} (Gələcəkdə PDF/Şəkil oxuma xüsusiyyəti əlavə ediləcək, hələlik ad qeyd edilir).`;
+        }
+      }
 
       const res = await fetch("/api/analyze", {
         method: "POST",
@@ -44,18 +51,7 @@ export default function PatientPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 mb-20 px-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800">Pasiyent Paneli</h1>
-          <p className="text-slate-500 mt-1">Süni intellekt dəstəkli ilkin tibbi analiz və yönləndirmə</p>
-        </div>
-        <button onClick={requestNotification} className="text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 px-4 py-2 rounded-xl transition font-medium flex items-center gap-2 shadow-sm">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-          Bildirişləri Aç
-        </button>
-      </div>
-
+    <div>
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="flex bg-slate-50 border-b border-slate-200 p-2 gap-2">
           {["TEXT", "FORM", "FILE"].map((tab) => (

@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 Süni İntellekt Dəstəkli Klinika Sistemi
 
-## Getting Started
+Bu layihə xəstələrin şikayətlərini qəbul edərək Süni İntellekt (OpenRouter API - Llama, Gemma, Nemotron və s.) vasitəsilə ilkin analiz edən və nəticəyə uyğun olaraq xəstəni "Ağır" (Alarm) və ya "Normal" statusla həkimin panelinə yönləndirən müasir bir Next.js tətbiqidir.
 
-First, run the development server:
+## 🚀 Texnologiyalar
+- **Next.js 14+** (App Router, Server Components, Server Actions)
+- **Tailwind CSS v3** (Glassmorphism, Gradient UI)
+- **Firebase Firestore & Admin SDK** (Real-time Məlumat Bazası)
+- **NextAuth.js** (Təhlükəsiz Giriş və Qeydiyyat Sistemi + Middleware)
+- **OpenRouter API** (Süni İntellekt Analizi)
 
+## 🛠 Qurulum və Çalışdırma
+
+### 1. Reponu Yükləyin və Paketləri Quraşdırın
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Mühit Dəyişənlərini (.env) Ayarlayın
+Layihənin ana qovluğunda olan `.env.example` faylının adını `.env` olaraq dəyişin və ya yeni `.env` faylı yaradıb içini doldurun:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+FIREBASE_PROJECT_ID="layihe-idi"
+FIREBASE_CLIENT_EMAIL="firebase-adminsdk-xxx@..."
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+BASE_URL="https://openrouter.ai/api/v1"
+API_KEY="sk-or-v1-sizin-openrouter-acarınız"
+AI_MODEL="openrouter/auto"
 
-## Learn More
+NEXTAUTH_SECRET="istədiyiniz-gizli-kod"
+NEXTAUTH_URL="http://localhost:3000"
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Firebase Bağlantısını Necə Qurmalı?
+1. [Firebase Console](https://console.firebase.google.com) ünvanına daxil olun.
+2. Yeni layihə yaradın.
+3. Sol menudan **Firestore Database** yaradın (Test Mode seçin).
+4. **Project Settings (Layihə Ayarları) -> Service Accounts** bölməsinə keçin.
+5. **"Generate new private key"** düyməsini sıxın və JSON faylını yükləyin.
+6. Həmin JSON faylının içindəki `project_id`, `client_email` və `private_key` məlumatlarını kopyalayaraq `.env` faylınızdakı müvafiq yerlərə (dırnaq işarələri daxilində və `\n` işarələrini silmədən) yapışdırın.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Layihəni İşə Salın
+```bash
+npm run dev
+```
+Sayt `http://localhost:3000` ünvanında açılacaq.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👥 İstifadəçi Rolları
+Sistemdə Qeydiyyatdan keçərkən Rol seçə bilərsiniz:
+- **PATIENT (Pasiyent)**: Şikayət göndərir, AI tərəfindən diaqnoz qoyulur, həkim rəylərini (bildirişlərini) oxuyur.
+- **DOCTOR (Həkim)**: Müraciətləri izləyir (Ağır xəstələr Qırmızı Alarm ilə yuxarıda görünür), rəy/diaqnoz yazır.
+- **ADMIN / RECEPTION**: Ümumi bazanı və statistikaları izləyir.

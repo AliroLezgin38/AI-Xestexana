@@ -49,12 +49,20 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <button
-              onClick={() => router.push("/login")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl transition shadow-md font-semibold"
-            >
-              Giriş Et
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/login")}
+                className="text-slate-600 hover:text-blue-600 px-4 py-2 font-bold transition"
+              >
+                Giriş Et
+              </button>
+              <button
+                onClick={() => router.push("/register")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl transition shadow-md font-bold"
+              >
+                Qeydiyyat
+              </button>
+            </div>
           )}
         </div>
       </div>
