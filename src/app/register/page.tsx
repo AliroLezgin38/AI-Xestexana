@@ -6,17 +6,22 @@ import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "PATIENT" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/");
+    if (status === "authenticated" && session?.user) {
+      const role = ((session.user as any)?.role as string | undefined)?.toUpperCase();
+      if (role === "PATIENT") router.replace("/patient");
+      else if (role === "DOCTOR") router.replace("/doctor");
+      else if (role === "RECEPTION") router.replace("/reception");
+      else if (role === "ADMIN") router.replace("/admin");
+      else router.replace("/");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +39,22 @@ export default function RegisterPage() {
 
     if (res.ok) {
       // Avtomatik giriş
-      await signIn("credentials", {
+      const signRes = await signIn("credentials", {
         email: form.email,
         password: form.password,
-        callbackUrl: "/"
+        redirect: false,
       });
+
+      if (!signRes?.error) {
+        router.refresh();
+        const role = form.role.toUpperCase();
+        if (role === "PATIENT") router.replace("/patient");
+        else if (role === "DOCTOR") router.replace("/doctor");
+        else if (role === "RECEPTION") router.replace("/reception");
+        else router.replace("/");
+      } else {
+        router.replace("/login");
+      }
     } else {
       setError(data.error || "Xəta baş verdi");
     }

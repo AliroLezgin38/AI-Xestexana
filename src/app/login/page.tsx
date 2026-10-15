@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,10 +14,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/");
+    if (status === "authenticated" && session?.user) {
+      const role = ((session.user as any)?.role as string | undefined)?.toUpperCase();
+      if (role === "PATIENT") router.replace("/patient");
+      else if (role === "DOCTOR") router.replace("/doctor");
+      else if (role === "RECEPTION") router.replace("/reception");
+      else if (role === "ADMIN") router.replace("/admin");
+      else router.replace("/");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +40,8 @@ export default function LoginPage() {
     if (result?.error) {
       setError("Email və ya şifrə yanlışdır.");
     } else {
-      router.push("/");
+      router.refresh();
+      router.replace("/");
     }
   };
 
@@ -50,7 +56,14 @@ export default function LoginPage() {
     setLoading(true);
     const result = await signIn("credentials", { ...acc, redirect: false });
     setLoading(false);
-    if (!result?.error) router.push("/");
+    if (!result?.error) {
+      router.refresh();
+      if (role === "PATIENT") router.replace("/patient");
+      else if (role === "DOCTOR") router.replace("/doctor");
+      else if (role === "RECEPTION") router.replace("/reception");
+      else if (role === "ADMIN") router.replace("/admin");
+      else router.replace("/");
+    }
   };
 
   if (status === "authenticated") return <div className="min-h-screen bg-slate-50"></div>;

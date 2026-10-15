@@ -8,7 +8,7 @@ export default async function Home() {
 
   // Əgər istifadəçi giriş edibsə, onu uyğun panelə yönləndiririk
   if (session?.user) {
-    const role = (session.user as { role?: string })?.role;
+    const role = (session.user as { role?: string })?.role?.toUpperCase();
     if (role === "PATIENT")   redirect("/patient");
     if (role === "DOCTOR")    redirect("/doctor");
     if (role === "RECEPTION") redirect("/reception");

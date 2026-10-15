@@ -43,7 +43,7 @@ export const authOptions: AuthOptions = {
           id: userDoc.id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: (user.role || "PATIENT").toUpperCase(),
         };
       }
     })
